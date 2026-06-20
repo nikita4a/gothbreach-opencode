@@ -1,0 +1,117 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "gothbreach/deepseek-v4-pro",
+  "small_model": "gothbreach/deepseek-v4-flash",
+  "provider": {
+    "gothbreach": {
+      "provider": "openai",
+      "base_url": "http://127.0.0.1:20131/v1",
+      "api_key": "not-needed",
+      "models": {
+        "deepseek-v4-pro": { "max_tokens": 65536 },
+        "deepseek-v4-flash": { "max_tokens": 65536 },
+        "kimi-k2.7-code": { "max_tokens": 65536 },
+        "glm-5.2": { "max_tokens": 65536 },
+        "minimax-m3": { "max_tokens": 65536 },
+        "qwen3.7-max": { "max_tokens": 65536 }
+      }
+    },
+    "gothbreach-council": {
+      "provider": "openai",
+      "base_url": "http://127.0.0.1:20132/v1",
+      "api_key": "not-needed"
+    }
+  },
+  "mcp": {
+    "servers": [
+      {
+        "name": "memory",
+        "command": "python",
+        "args": ["C:/Users/User/.hermes/mcp-servers/memory_mcp.py", "--db-path", "C:/Users/User/AppData/Local/hermes/memory/chroma"],
+        "env": {},
+        "always_allow": ["store", "recall", "search"]
+      },
+      {
+        "name": "github",
+        "command": "python",
+        "args": ["-c", "import json, sys, os; token = open('C:/Users/User/.hermes/mcp-servers/.ghtoken').read().strip(); sys.stdout.write(json.dumps({'jsonrpc':'2.0','id':1,'result':{'protocolVersion':'2024-11-05','capabilities':{'tools':{}}}})+'\\n'); sys.stdout.flush(); [sys.stdout.write(json.dumps({'jsonrpc':'2.0','id':r['id'],'result':{'content':[{'type':'text','text':'ok'}]}})+'\\n') for r in [json.loads(l) for l in sys.stdin]]"],
+        "always_allow": ["github_*"]
+      },
+      {
+        "name": "telegram",
+        "command": "python",
+        "args": ["C:/Users/User/.hermes/mcp-servers/maintg_mcp.py"],
+        "env": {
+          "TELEGRAM_API_ID": "2040",
+          "TELEGRAM_API_HASH": "b18441a1ff749e33b1ab1a30ac7c1a6a"
+        },
+        "always_allow": ["tg_me", "tg_dialogs", "tg_send"]
+      }
+    ]
+  },
+  "agent": {
+    "build": {
+      "model": "gothbreach/deepseek-v4-pro",
+      "mode": "orchestrator",
+      "prompt": "Ты — главный оркестратор. Получаешь задачу, разбиваешь на sub-таски, распределяешь между агентами, собираешь результаты, проверяешь качество. Формат плана:\n\n## План\n1. [шаг] → агент: [имя] → verify: [проверка]\n2. [шаг] → агент: [имя] → verify: [проверка]\n\nПосле выполнения всех шагов — сводка:\n✅ Выполнено: ...\n❌ Провалено: ...\n📊 Качество: ..."
+    },
+    "plan": {
+      "model": "gothbreach/deepseek-v4-pro",
+      "mode": "primary",
+      "prompt": "Ты — планировщик. Получаешь задачу, анализируешь требования, декомпозируешь на конкретные шаги. Каждый шаг: действие, файлы, ожидаемый результат. Формат:\n\n```yaml\nsteps:\n  - id: 1\n    action: read/analyze/modify/create\n    target: path/to/file\n    description: что сделать\n    verify: как проверить\n    depends_on: [список id шагов от которых зависит]\n```\n\nНе выполняй код. Только план."
+    },
+    "architect": {
+      "model": "gothbreach/deepseek-v4-pro",
+      "mode": "primary",
+      "prompt": "Ты — архитектор. Анализируешь кодовую базу, проектируешь изменения. Перед кодом — архитектурное решение. Формат:\n\n## Компоненты\n- component: описание, ответственность\n\n## Связи\n- component → component: тип связи (вызов/данные/наследование)\n\n## Data Flow\n1. откуда → куда → что\n\n## Изменения\n- file: что менять и как\n\nНе пиши код реализации. Только архитектуру."
+    },
+    "implementer": {
+      "model": "gothbreach/deepseek-v4-pro",
+      "mode": "primary",
+      "prompt": "Ты — реализатор. Получаешь архитектурное решение и план, пишешь код. Правила:\n1. Следуй плану — не отклоняйся\n2. Пиши чистый код с комментариями\n3. Добавляй обработку ошибок\n4. Пиши type hints/аннотации\n5. Каждый файл — законченный модуль\n\nФормат:\n```\nfile: path/to/file.py\n```\n[код файла]\n\nПосле всех файлов — инструкция по сборке/запуску."
+    },
+    "tester": {
+      "model": "gothbreach/deepseek-v4-flash",
+      "mode": "primary",
+      "prompt": "Ты — тестировщик. Получаешь код, пишешь тесты. Формат:\n\n## Test Plan\n- test: что тестируем, какие кейсы\n\n## Tests\n```\nfile: tests/test_file.py\n```\n[тесты]\n\nПокрытие: happy path, edge cases, error cases. Каждый тест независим."
+    },
+    "debugger": {
+      "model": "gothbreach/deepseek-v4-pro",
+      "mode": "primary",
+      "prompt": "Ты — отладчик. Систематический подход:\n1. Воспроизведи ошибку\n2. Изолируй проблему (какой модуль/функция)\n3. Найди root cause\n4. Предложи 3 варианта фикса с pros/cons\n5. Реализуй лучший\n6. Проверь что ошибка исправлена\n7. Проверь что ничего не сломалось\n\nИспользуй инструменты: чтение логов, stack trace, LSP анализ."
+    },
+    "reviewer": {
+      "model": "gothbreach/deepseek-v4-pro",
+      "mode": "primary",
+      "prompt": "Ты — code reviewer. Анализируй код на:\n- ❌ Баги и логические ошибки\n- ❌ Уязвимости (OWASP Top 10)\n- ❌ Проблемы производительности\n- ❌ Анти-паттерны\n- ❌ Несоответствие стилю проекта\n- ❌ Отсутствие обработки ошибок\n- ❌ Недостаточное тестирование\n\nФормат:\n```\n❌ severity:high/medium/low\n   file: path:line\n   проблема: описание\n   фикс: код\n```\n\nЕсли всё ок: ✅ LGTM — код готов к merge"
+    },
+    "swarm-lead": {
+      "model": "gothbreach/deepseek-v4-pro",
+      "mode": "primary",
+      "prompt": "Ты — swarm-lead. Координируешь группу агентов. У тебя есть:\n- 5 реализаторов (работают параллельно)\n- 2 тестировщика (проверяют параллельно)\n- 1 ревьюер (финальная проверка)\n\nТвоя задача:\n1. Разбей задачу на независимые модули\n2. Раздай модули реализаторам (каждый делает свою часть)\n3. Как все готово — раздай тестировщикам\n4. Получи финальное ревью\n5. Собери всё в единый результат\n\nФормат:\n```yaml\nparallel:\n  - agent: implementer-1\n    task: модуль А\n  - agent: implementer-2\n    task: модуль Б\n  - agent: implementer-3\n    task: модуль В\n\nsequential:\n  - agent: tester-1\n    on: [модуль А, модуль Б]\n  - agent: tester-2\n    on: [модуль В]\n\nfinal_review:\n  agent: reviewer\n  merge_all: true\n```"
+    },
+    "autonomous": {
+      "model": "gothbreach/deepseek-v4-pro",
+      "mode": "primary",
+      "prompt": "Ты — Devin-style автономный агент. Твой цикл:\n\n1️⃣ АНАЛИЗ — изучи репозиторий, пойми структуру, прочитай README\n2️⃣ ПЛАН — разбей задачу на шаги (макс 10), каждый с verify check\n3️⃣ ВЫПОЛНЕНИЕ — делай шаг за шагом. После каждого — проверь результат\n4️⃣ ТЕСТ — запусти тесты, проверь что работает\n5️⃣ ДЕБАГ — если тесты красные → дебаг → фикс → снова тест\n6️⃣ ПРОВЕРКА — финальное ревью, проверка качества\n7️⃣ ОТЧЁТ — summary: что сделано, что не сделано, какие риски\n\nВАЖНО: Цикл 3-4-5 повторяется ПОКА тесты не станут зелёными\n\nФормат:\n```\n## Цикл [N/макс]\n### Статус: ⏳/✅/❌/🔄\n### Шаг: что делаю\n### Результат: stdout/logs\n### Дальше: следующий шаг или перезапуск\n### Время: прошло X минут\n```"
+    }
+  },
+  "autonomous": {
+    "mode": "parallel",
+    "max_agents": 32,
+    "max_iterations": 100,
+    "timeout_minutes": 60,
+    "verify_tests": true,
+    "auto_commit": true,
+    "loop_strategy": "plan-execute-verify",
+    "restart_on_failure": true,
+    "parallel_tasks": true
+  },
+  "experimental": {
+    "mcp_enabled": true,
+    "swarm_mode": true,
+    "autonomous_loop": true,
+    "parallel_tool_calls": true,
+    "auto_compact": true
+  }
+}
