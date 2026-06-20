@@ -1,5 +1,5 @@
-import "@/index.css"
-import * as Sentry from "@sentry/solid"
+import "src/index.css"
+// [gothbreach] Sentry removed — no telemetry
 import { I18nProvider } from "@opencode-ai/ui/context"
 import { DialogProvider } from "@opencode-ai/ui/context/dialog"
 import { FileComponentProvider } from "@opencode-ai/ui/context/file"
@@ -273,7 +273,7 @@ export function AppBaseProviders(props: ParentProps<{ locale?: Locale }>) {
           <UiI18nBridge>
             <ErrorBoundary
               fallback={(error) => {
-                Sentry.captureException(error)
+                console.error('[gothbreach] ErrorBoundary:', error)
                 return <ErrorPage error={error} />
               }}
             >

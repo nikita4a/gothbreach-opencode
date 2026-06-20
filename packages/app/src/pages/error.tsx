@@ -1,5 +1,5 @@
 import { TextField } from "@opencode-ai/ui/text-field"
-import * as Sentry from "@sentry/solid"
+// [gothbreach] Sentry removed
 import { Logo } from "@opencode-ai/ui/logo"
 import { Button } from "@opencode-ai/ui/button"
 import { Component, createSignal, onMount, Show } from "solid-js"
@@ -301,7 +301,7 @@ export const ErrorPage: Component<ErrorPageProps> = (props) => {
               {language.t("error.page.action.exportLogs")}
             </Button>
           </Show>
-          <Show when={Sentry.isEnabled}>
+          <Show when={false}>
             {(_) => {
               const [reported, setReported] = createSignal(false)
               return (
@@ -309,7 +309,7 @@ export const ErrorPage: Component<ErrorPageProps> = (props) => {
                   size="large"
                   disabled={reported()}
                   onClick={() => {
-                    Sentry.captureException(props.error)
+                    console.error('[gothbreach] Report:', props.error)
                     setReported(true)
                   }}
                 >
