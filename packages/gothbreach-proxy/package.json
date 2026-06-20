@@ -1,0 +1,50 @@
+{
+  "name": "opencode-llm-proxy",
+  "version": "1.6.1",
+  "description": "Local AI gateway for OpenCode — use any model via OpenAI, Anthropic, or Gemini API format",
+  "main": "index.js",
+  "type": "module",
+  "engines": {
+    "bun": ">=1.0.0"
+  },
+  "scripts": {
+    "test": "node --test --experimental-test-coverage",
+    "lint": "eslint .",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "openai",
+    "openai-compatible",
+    "anthropic",
+    "gemini",
+    "ollama",
+    "proxy",
+    "llm",
+    "ai",
+    "gateway",
+    "local-llm",
+    "github-copilot",
+    "langchain",
+    "open-webui",
+    "llm-proxy",
+    "ai-gateway",
+    "model-router",
+    "openrouter",
+    "bedrock"
+  ],
+  "author": "KochC",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KochC/opencode-llm-proxy.git"
+  },
+  "peerDependencies": {
+    "opencode-ai": "*"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.1.0"
+  }
+}

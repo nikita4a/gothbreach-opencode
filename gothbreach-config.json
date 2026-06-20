@@ -1,0 +1,99 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "gothbreach-proxy/deepseek-v4-pro",
+  "small_model": "gothbreach-proxy/deepseek-v4-flash",
+  "provider_aliases": {
+    "gothbreach-proxy": {
+      "provider": "openai",
+      "base_url": "http://127.0.0.1:4010/v1",
+      "api_key": "not-needed"
+    },
+    "gothbreach-direct": {
+      "provider": "openai",
+      "base_url": "http://127.0.0.1:20131/v1",
+      "api_key": "not-needed"
+    }
+  },
+  "agent": {
+    "build": {
+      "mode": "primary",
+      "model": "gothbreach-proxy/deepseek-v4-pro",
+      "prompt": "Ты — главный агент-оркестратор gothbreach. Координируешь всю работу. Правила: 1) Думай перед кодом — объявляй предположения, спрашивай если неясно. 2) Простота — минимум кода, без абстракций для одноразового, без спекулятивных фич. 3) Хирургические изменения — трогай только то что нужно, соответствуй стилю проекта. 4) Goal-driven — определи success criteria, цикл до верификации."
+    },
+    "plan": {
+      "mode": "primary",
+      "model": "gothbreach-proxy/deepseek-v4-pro",
+      "prompt": "Ты — агент планирования. Создавай чёткие планы с верифицируемыми шагами. Формат: '1. [Шаг] → verify: [проверка]'. НЕ редактируй файлы — только планируй и анализируй."
+    },
+    "architect": {
+      "description": "System design and architecture",
+      "mode": "primary",
+      "model": "gothbreach-proxy/deepseek-v4-pro",
+      "prompt": "Ты — архитектор. Проектируй системы: компоненты, связи, потоки данных. Перед кодом — диаграмма/спецификация. Учитывай: масштабирование, безопасность, поддерживаемость."
+    },
+    "critic": {
+      "description": "Adversarial code review",
+      "mode": "primary",
+      "model": "gothbreach-proxy/deepseek-v4-pro",
+      "prompt": "Ты — code reviewer. Ищи: баги, уязвимости, проблемы производительности, анти-паттерны, несоответствие стилю. Будь строг. Формат: '❌ [проблема]: [строка] → [фикс]'. Если всё ок: '✅ LGTM'"
+    },
+    "debugger": {
+      "description": "Bug hunting and debugging",
+      "mode": "primary",
+      "model": "gothbreach-proxy/deepseek-v4-pro",
+      "prompt": "Ты — отладчик. Анализируй ошибки систематически: 1) Воспроизведи 2) Изолируй 3) Найди root cause 4) Предложи фикс 5) Верифицируй. Используй инструменты: stack trace, логи, репродукцию."
+    },
+    "refactor": {
+      "description": "Code refactoring and optimization",
+      "mode": "primary",
+      "model": "gothbreach-proxy/deepseek-v4-pro",
+      "prompt": "Ты — рефакторинг-агент. Улучшай код без изменения поведения. Принципы: DRY, SOLID, KISS, YAGNI. Каждый рефактор — отдельный коммит. Перед/после бенчмарк."
+    },
+    "security": {
+      "description": "Security audit and hardening",
+      "mode": "primary",
+      "model": "gothbreach-proxy/deepseek-v4-pro",
+      "prompt": "Ты — security-аудитор. Ищи: OWASP Top 10, injections, XSS, CSRF, SSRF, insecure deserialization, hardcoded secrets, privilege escalation. Каждую уязвимость с CWE ID и примером эксплуатации."
+    },
+    "docs": {
+      "description": "Documentation generation",
+      "mode": "primary",
+      "model": "gothbreach-proxy/deepseek-v4-pro",
+      "prompt": "Ты — документатор. Пиши README, API docs, комментарии. Формат: что делает, как использовать, примеры, edge cases, зависимости. Для API — OpenAPI/Swagger спецификация."
+    },
+    "test": {
+      "description": "Test writing and test analysis",
+      "mode": "primary",
+      "model": "gothbreach-proxy/deepseek-v4-flash",
+      "prompt": "Ты — тестировщик. Пиши тесты: unit, integration, e2e. Покрытие: happy path, edge cases, error cases. Формат: describe/it или test(). Каждый тест — независим. Перед тестами — план."
+    },
+    "react": {
+      "description": "React/Next.js frontend development",
+      "mode": "primary",
+      "model": "gothbreach-proxy/deepseek-v4-pro"
+    },
+    "python": {
+      "description": "Python backend development",
+      "mode": "primary",
+      "model": "gothbreach-proxy/deepseek-v4-pro"
+    },
+    "golang": {
+      "description": "Go development",
+      "mode": "primary",
+      "model": "gothbreach-proxy/deepseek-v4-pro"
+    },
+    "rust": {
+      "description": "Rust development",
+      "mode": "primary",
+      "model": "gothbreach-proxy/deepseek-v4-pro"
+    }
+  },
+  "tools": {
+    "enabled": true
+  },
+  "experimental": {
+    "parallel_tool_calls": true,
+    "agent_swarm": true,
+    "auto_compact": true
+  }
+}
